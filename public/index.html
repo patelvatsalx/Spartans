@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LessonCraft AI — AI-Powered Lesson Planner for Teachers</title>
+  <meta name="description" content="Generate structured lesson plans, student worksheets, 5-question quizzes, and answer keys in seconds with Google Gemini AI. Export to Google Docs and Google Forms.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/print.css">
+</head>
+<body>
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <div class="brand-logo" id="navBrandBtn">
+        <div class="brand-icon-wrapper">✨</div>
+        <span>LessonCraft AI</span>
+        <span class="brand-text-badge">Gemini</span>
+      </div>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a class="nav-link active" data-target="dashboardView">Dashboard</a></li>
+          <li><a class="nav-link" data-target="createView">Create Lesson</a></li>
+          <li><a class="nav-link" id="navExamplesBtn">Examples</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="gemini-badge" id="geminiStatusBadge">
+          <span class="gemini-dot"></span>
+          <span id="geminiStatusText">Gemini 2.5 Active</span>
+        </div>
+
+        <div class="user-profile">
+          <div class="user-avatar">T</div>
+          <span class="user-name">Teacher Workspace</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="flex: 1;">
+
+    <!-- ====================================================================
+         VIEW 1: LANDING / DASHBOARD
+         ==================================================================== -->
+    <section id="dashboardView" class="view-section active">
+      
+      <!-- HERO BANNER -->
+      <div class="hero-section">
+        <div class="hero-pill">⚡ Powered by Google Gemini AI</div>
+        <h1 class="hero-title">Plan better lessons. <span>In minutes.</span></h1>
+        <p class="hero-subtitle">
+          LessonCraft AI turns a simple topic into a classroom-ready lesson plan, printable student worksheet, 5-question quiz, and answer key using Google Gemini.
+        </p>
+        <div class="hero-ctas">
+          <button class="btn btn-primary btn-lg" id="heroCreateBtn">
+            <span>✨ Create New Lesson</span>
+          </button>
+          <button class="btn btn-secondary btn-lg" id="heroDemoBtn">
+            <span>🚀 Try Science Example</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- FEATURE CARDS SECTION -->
+      <div class="features-section">
+        <div class="section-header">
+          <h2 class="section-title">Everything you need for your next class</h2>
+          <p class="section-subtitle">Comprehensive teaching materials generated simultaneously in seconds.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon-box feature-icon-indigo">📋</div>
+            <h3 class="feature-card-title">Structured Lesson Plans</h3>
+            <p class="feature-card-desc">Complete with timed activities, clear objectives, materials checklist, and formative assessment strategy.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-box feature-icon-teal">📝</div>
+            <h3 class="feature-card-title">Student Worksheets</h3>
+            <p class="feature-card-desc">Print-ready exercises with multiple question formats optimized for classroom hand-outs.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-box feature-icon-emerald">🎯</div>
+            <h3 class="feature-card-title">Smart Quizzes & Keys</h3>
+            <p class="feature-card-desc">5-question comprehension quizzes paired with step-by-step teacher answer keys and explanations.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-box feature-icon-amber">📂</div>
+            <h3 class="feature-card-title">Google Workspace Ready</h3>
+            <p class="feature-card-desc">Export your lesson plan directly into Google Docs or create live Google Forms quizzes with one click.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECENT LESSONS SECTION -->
+      <div class="recent-lessons-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <div>
+            <h2 class="section-title" style="font-size: 1.35rem;">Recent & Example Lessons</h2>
+            <p class="section-subtitle" style="font-size: 0.85rem;">Click any card to open and inspect the generated materials.</p>
+          </div>
+          <button class="btn btn-outline-brand btn-sm" id="dashboardNewBtn">+ New Lesson</button>
+        </div>
+
+        <div class="lessons-grid" id="recentLessonsGrid">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ====================================================================
+         VIEW 2: CREATE LESSON (Form + AI Live Preview)
+         ==================================================================== -->
+    <section id="createView" class="view-section">
+      
+      <div class="create-grid">
+        
+        <!-- LEFT: FORM CARD -->
+        <div class="form-card">
+          <div class="form-header">
+            <div>
+              <h2 class="form-title">Create Lesson Plan</h2>
+              <p class="form-subtitle">Fill in your class details and let Gemini AI generate your complete teaching pack.</p>
+            </div>
+            <button type="button" class="btn btn-outline-brand btn-sm" id="prefillExampleBtn">⚡ Prefill Science Demo</button>
+          </div>
+
+          <form id="lessonForm">
+            
+            <div class="form-row">
+              <!-- Subject -->
+              <div class="form-group">
+                <label class="form-label" for="subjectInput">Subject <span class="required">*</span></label>
+                <select class="form-control" id="subjectInput" required>
+                  <option value="Science" selected>Science</option>
+                  <option value="Mathematics">Mathematics</option>
+                  <option value="English">English Language Arts</option>
+                  <option value="Social Studies">Social Studies / History</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Other">Other Subject</option>
+                </select>
+              </div>
+
+              <!-- Topic -->
+              <div class="form-group">
+                <label class="form-label" for="topicInput">Topic <span class="required">*</span></label>
+                <input type="text" class="form-control" id="topicInput" placeholder="e.g. Photosynthesis & Cell Energy" required value="Photosynthesis & Cell Energy">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <!-- Grade -->
+              <div class="form-group">
+                <label class="form-label" for="gradeInput">Grade Level <span class="required">*</span></label>
+                <select class="form-control" id="gradeInput" required>
+                  <option value="Grade 1">Grade 1</option>
+                  <option value="Grade 2">Grade 2</option>
+                  <option value="Grade 3">Grade 3</option>
+                  <option value="Grade 4">Grade 4</option>
+                  <option value="Grade 5">Grade 5</option>
+                  <option value="Grade 6">Grade 6</option>
+                  <option value="Grade 7">Grade 7</option>
+                  <option value="Grade 8" selected>Grade 8</option>
+                  <option value="Grade 9">Grade 9</option>
+                  <option value="Grade 10">Grade 10</option>
+                  <option value="Grade 11">Grade 11</option>
+                  <option value="Grade 12">Grade 12</option>
+                </select>
+              </div>
+
+              <!-- Duration -->
+              <div class="form-group">
+                <label class="form-label" for="durationInput">Class Duration <span class="required">*</span></label>
+                <select class="form-control" id="durationInput" required>
+                  <option value="30 minutes">30 minutes</option>
+                  <option value="45 minutes" selected>45 minutes</option>
+                  <option value="60 minutes">60 minutes</option>
+                  <option value="90 minutes">90 minutes</option>
+                  <option value="120 minutes">120 minutes</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Difficulty Segmented Control -->
+            <div class="form-group">
+              <label class="form-label">Difficulty Level</label>
+              <div class="segmented-control">
+                <div class="segmented-option">
+                  <input type="radio" id="diffBeginner" name="difficulty" value="Beginner">
+                  <label for="diffBeginner">Beginner</label>
+                </div>
+                <div class="segmented-option">
+                  <input type="radio" id="diffIntermediate" name="difficulty" value="Intermediate" checked>
+                  <label for="diffIntermediate">Intermediate</label>
+                </div>
+                <div class="segmented-option">
+                  <input type="radio" id="diffAdvanced" name="difficulty" value="Advanced">
+                  <label for="diffAdvanced">Advanced</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Learning Objectives (Optional) -->
+            <div class="form-group">
+              <label class="form-label" for="objectivesInput">Learning Objectives (Optional)</label>
+              <textarea class="form-control" id="objectivesInput" maxlength="300" placeholder="What should students understand by the end of the lesson? (e.g. Understand chemical inputs & outputs of photosynthesis)"></textarea>
+              <div class="char-counter"><span id="charCount">0</span> / 300 characters</div>
+            </div>
+
+            <!-- Submit Action -->
+            <div style="margin-top: 2rem;">
+              <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;" id="generateSubmitBtn">
+                <span>✨ Generate Lesson Plan</span>
+              </button>
+              <div style="text-align: center; margin-top: 0.75rem; font-size: 0.8rem; color: var(--color-neutral-500);">
+                ⚡ Powered by Google Gemini API
+              </div>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- RIGHT: LIVE AI PREVIEW PANEL -->
+        <div class="ai-preview-card">
+          <div class="preview-header">
+            <div class="preview-sparkle-box">🤖</div>
+            <div>
+              <div class="preview-title">Live AI Spec Preview</div>
+              <div style="font-size: 0.8rem; color: var(--color-neutral-500);">Real-time prompt summary</div>
+            </div>
+          </div>
+
+          <div class="preview-badge-stack" id="previewBadges">
+            <span class="badge badge-primary" id="previewSubjectBadge">Science</span>
+            <span class="badge badge-teal" id="previewGradeBadge">Grade 8</span>
+            <span class="badge badge-neutral" id="previewDurationBadge">45 min</span>
+          </div>
+
+          <div class="preview-item">
+            <div class="preview-item-label">Target Topic</div>
+            <div class="preview-item-val" id="previewTopicText">Photosynthesis & Cell Energy</div>
+          </div>
+
+          <div class="preview-item">
+            <div class="preview-item-label">Difficulty Target</div>
+            <div class="preview-item-val" id="previewDiffText">Intermediate</div>
+          </div>
+
+          <div class="preview-item">
+            <div class="preview-item-label">Outputs to be Generated</div>
+            <ul style="list-style: none; font-size: 0.85rem; color: var(--color-neutral-700); display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.4rem;">
+              <li>✓ 1 structured Lesson Plan & Timeline</li>
+              <li>✓ 1 Printable Student Worksheet</li>
+              <li>✓ 1 5-Question Quiz</li>
+              <li>✓ 1 Teacher Answer Key with Explanations</li>
+            </ul>
+          </div>
+
+          <div style="background-color: var(--color-brand-light); border: 1px dashed var(--color-brand-border); padding: 1rem; border-radius: var(--radius-md); font-size: 0.8rem; color: var(--color-brand-primary); margin-top: 1.5rem;">
+            💡 <strong>Teacher Tip:</strong> Adding specific learning objectives helps Gemini tailor activities to your exact curriculum standard.
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ====================================================================
+         VIEW 3: RESULTS SCREEN
+         ==================================================================== -->
+    <section id="resultsView" class="view-section">
+      
+      <!-- RESULTS HEADER -->
+      <div class="results-header">
+        <div class="results-title-area">
+          <div style="font-size: 0.85rem; font-weight: 700; color: var(--color-brand-primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem;">
+            Lesson Plan Generated 🎉
+          </div>
+          <h2 id="resTitleText">Photosynthesis & Plant Energy</h2>
+          <div class="results-tags" id="resTagStack">
+            <span class="badge badge-primary" id="resSubjectBadge">Science</span>
+            <span class="badge badge-teal" id="resGradeBadge">Grade 8</span>
+            <span class="badge badge-neutral" id="resDurationBadge">45 min</span>
+            <span class="badge badge-success" id="resDiffBadge">Intermediate</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STICKY ACTION BAR -->
+      <div class="action-bar">
+        <div class="action-bar-group">
+          <button class="btn btn-secondary btn-sm" id="actionEditBtn">✏️ Edit Input</button>
+          <button class="btn btn-secondary btn-sm" id="actionSaveBtn">💾 Save Lesson</button>
+          <button class="btn btn-secondary btn-sm" id="actionPrintBtn">🖨️ Print View</button>
+        </div>
+
+        <div class="action-bar-group">
+          <button class="btn btn-outline-brand btn-sm" id="actionDocsBtn">📄 Export Google Doc</button>
+          <button class="btn btn-outline-brand btn-sm" id="actionFormsBtn">📝 Create Google Form</button>
+          <button class="btn btn-primary btn-sm" id="actionNewBtn">✨ New Lesson</button>
+        </div>
+      </div>
+
+      <!-- TABS NAVIGATION -->
+      <div class="tabs-header">
+        <button class="tab-btn active" data-tab="tabLessonPlan">📋 1. Lesson Plan</button>
+        <button class="tab-btn" data-tab="tabWorksheet">📝 2. Student Worksheet</button>
+        <button class="tab-btn" data-tab="tabQuiz">🎯 3. 5-Question Quiz</button>
+        <button class="tab-btn" data-tab="tabAnswerKey">🔑 4. Answer Key</button>
+      </div>
+
+      <!-- TAB 1 CONTENT: LESSON PLAN -->
+      <div id="tabLessonPlan" class="tab-content active">
+        <div class="lesson-plan-card" id="lessonPlanContainer">
+          <!-- Dynamically populated by results.js -->
+        </div>
+      </div>
+
+      <!-- TAB 2 CONTENT: WORKSHEET -->
+      <div id="tabWorksheet" class="tab-content">
+        <div style="text-align: center; margin-bottom: 1rem;" class="no-print">
+          <button class="btn btn-primary btn-sm" id="printWorksheetBtn">🖨️ Print Student Worksheet</button>
+        </div>
+        <div class="worksheet-paper" id="worksheetContainer">
+          <!-- Dynamically populated by results.js -->
+        </div>
+      </div>
+
+      <!-- TAB 3 CONTENT: QUIZ -->
+      <div id="tabQuiz" class="tab-content">
+        <div class="quiz-container">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;" class="no-print">
+            <h3 style="font-size: 1.25rem; font-weight: 800;">5-Question Quiz Preview</h3>
+            <button class="btn btn-primary btn-sm" id="quizExportFormBtn">📝 Export to Google Form</button>
+          </div>
+          <div id="quizContainer">
+            <!-- Dynamically populated by results.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4 CONTENT: ANSWER KEY -->
+      <div id="tabAnswerKey" class="tab-content">
+        <div style="max-width: 800px; margin: 0 auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;" class="no-print">
+            <h3 style="font-size: 1.25rem; font-weight: 800;">Teacher Answer Key</h3>
+            <button class="btn btn-primary btn-sm" id="printAnswerKeyBtn">🖨️ Print Answer Key</button>
+          </div>
+          <div id="answerKeyContainer">
+            <!-- Dynamically populated by results.js -->
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ANIMATED GENERATION MODAL -->
+  <div class="modal-overlay" id="generationModal">
+    <div class="generation-modal">
+      <div class="ai-pulse-circle">🤖</div>
+      <h3 class="modal-heading">Creating your lesson...</h3>
+      <p class="modal-subtext">Gemini AI is crafting your tailored lesson plan, worksheet, and quiz.</p>
+
+      <ul class="generation-steps">
+        <li class="step-item" id="step1">
+          <div class="step-icon">1</div>
+          <span>Understanding your topic & objectives</span>
+        </li>
+        <li class="step-item" id="step2">
+          <div class="step-icon">2</div>
+          <span>Structuring lesson timeline & activities</span>
+        </li>
+        <li class="step-item" id="step3">
+          <div class="step-icon">3</div>
+          <span>Designing student worksheet exercises</span>
+        </li>
+        <li class="step-item" id="step4">
+          <div class="step-icon">4</div>
+          <span>Building 5-question quiz & answer key</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>LessonCraft AI</strong> — Powered by <span class="footer-badge">Google Gemini API</span>
+      </div>
+      <div class="footer-credits">
+        <span>Google EdTech Hackathon 2026</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Frontend JavaScript Modules -->
+  <script src="js/ui.js"></script>
+  <script src="js/create.js"></script>
+  <script src="js/results.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

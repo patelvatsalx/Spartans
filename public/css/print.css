@@ -1,0 +1,83 @@
+/* ==========================================================================
+   LessonCraft AI - Print Stylesheet (@media print)
+   Optimizes student worksheets and answer keys for physical paper and PDF generation.
+   ========================================================================== */
+
+@media print {
+  /* Hide non-printable UI elements */
+  .navbar,
+  .footer,
+  .action-bar,
+  .tabs-header,
+  .results-header,
+  .hero-section,
+  .nav-actions,
+  .toast-container,
+  .btn,
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Reset body & layout for standard printer paper */
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 12pt !important;
+    line-height: 1.5 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .container {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .view-section {
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  /* Force display of active printable container */
+  .worksheet-paper,
+  .answer-key-card,
+  .lesson-plan-card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  /* High contrast formatting */
+  h1, h2, h3, h4 {
+    color: #000000 !important;
+    page-break-after: avoid;
+  }
+
+  .ws-question-item,
+  .timeline-item,
+  .activity-card,
+  .answer-key-card,
+  .quiz-card {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  /* Show underline for student answers clearly */
+  .ws-answer-lines {
+    color: #000000 !important;
+    font-weight: bold;
+  }
+
+  /* Page margins */
+  @page {
+    size: A4 portrait;
+    margin: 20mm;
+  }
+}

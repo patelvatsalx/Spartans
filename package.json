@@ -1,0 +1,30 @@
+{
+  "name": "lessoncraft-ai",
+  "version": "1.0.0",
+  "description": "AI-Powered Lesson Planner for Teachers built with Google Gemini API and Google Workspace",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js"
+  },
+  "keywords": [
+    "education",
+    "lesson-planner",
+    "gemini-api",
+    "express",
+    "google-docs",
+    "google-forms"
+  ],
+  "author": "LessonCraft AI Team",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "googleapis": "^140.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

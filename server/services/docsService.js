@@ -30,7 +30,8 @@ async function createGoogleDoc(lessonData) {
       privateKey,
       [
         'https://www.googleapis.com/auth/documents',
-        'https://www.googleapis.com/auth/drive'
+        'https://www.googleapis.com/auth/drive',
+        'https://www.googleapis.com/auth/drive.file'
       ]
     );
 
@@ -38,15 +39,26 @@ async function createGoogleDoc(lessonData) {
     const drive = google.drive({ version: 'v3', auth });
 
     const title = lessonData?.lesson?.title || `Lesson Plan: ${lessonData?.lesson?.topic || 'Untitled'}`;
-    
-    // Create new blank document
-    const createRes = await docs.documents.create({
-      requestBody: {
-        title
-      }
-    });
 
-    const documentId = createRes.data.documentId;
+    let documentId;
+    try {
+      // Method 1: Create new blank document via Docs API
+      const createRes = await docs.documents.create({
+        requestBody: { title }
+      });
+      documentId = createRes.data.documentId;
+    } catch (createErr) {
+      console.warn('[Docs Service] Direct docs.create failed, trying drive.files.create fallback...', createErr.message);
+      // Method 2: Fallback to Drive API file creation
+      const driveRes = await drive.files.create({
+        requestBody: {
+          name: title,
+          mimeType: 'application/vnd.google-apps.document'
+        }
+      });
+      documentId = driveRes.data.id;
+    }
+
     const documentUrl = `https://docs.google.com/document/d/${documentId}/edit`;
 
     // Format content text
@@ -90,10 +102,14 @@ async function createGoogleDoc(lessonData) {
 
   } catch (error) {
     console.error('[Google Docs Service Error]:', error.message || error);
+    let msg = error.message;
+    if (msg && msg.includes('caller does not have permission')) {
+      msg = 'Service Account needs Editor permission. Go to Google Cloud Console > IAM & Admin > IAM and grant Editor role to lessoncraft-bot@planar-name-467804-b6.iam.gserviceaccount.com';
+    }
     return {
       success: false,
       configured: true,
-      message: `Failed to create Google Doc: ${error.message}`
+      message: `Google Docs Export Notice: ${msg}`
     };
   }
 }

@@ -29,7 +29,8 @@ async function createGoogleForm(quizData, lessonTopic) {
       privateKey,
       [
         'https://www.googleapis.com/auth/forms.body',
-        'https://www.googleapis.com/auth/drive'
+        'https://www.googleapis.com/auth/drive',
+        'https://www.googleapis.com/auth/drive.file'
       ]
     );
 
@@ -37,19 +38,31 @@ async function createGoogleForm(quizData, lessonTopic) {
     const drive = google.drive({ version: 'v3', auth });
 
     const title = quizData?.title || `Quiz: ${lessonTopic || 'Lesson Quiz'}`;
-    
-    // Create new Google Form
-    const createRes = await forms.forms.create({
-      requestBody: {
-        info: {
-          title,
-          documentTitle: title
-        }
-      }
-    });
 
-    const formId = createRes.data.formId;
-    const responderUri = createRes.data.responderUri || `https://docs.google.com/forms/d/${formId}/viewform`;
+    let formId;
+    let responderUri;
+
+    try {
+      // Method 1: Create new Google Form via Forms API
+      const createRes = await forms.forms.create({
+        requestBody: {
+          info: { title }
+        }
+      });
+      formId = createRes.data.formId;
+      responderUri = createRes.data.responderUri || `https://docs.google.com/forms/d/${formId}/viewform`;
+    } catch (createErr) {
+      console.warn('[Forms Service] Direct forms.create failed, trying drive.files.create fallback...', createErr.message);
+      // Method 2: Fallback to Drive API file creation
+      const driveRes = await drive.files.create({
+        requestBody: {
+          name: title,
+          mimeType: 'application/vnd.google-apps.form'
+        }
+      });
+      formId = driveRes.data.id;
+      responderUri = `https://docs.google.com/forms/d/${formId}/viewform`;
+    }
 
     const questions = quizData?.questions || [];
     const updateRequests = [];
@@ -111,10 +124,14 @@ async function createGoogleForm(quizData, lessonTopic) {
 
   } catch (error) {
     console.error('[Google Forms Service Error]:', error.message || error);
+    let msg = error.message;
+    if (msg && (msg.includes('caller does not have permission') || msg.includes('Internal error'))) {
+      msg = 'Service Account needs Editor permission. Go to Google Cloud Console > IAM & Admin > IAM and grant Editor role to lessoncraft-bot@planar-name-467804-b6.iam.gserviceaccount.com';
+    }
     return {
       success: false,
       configured: true,
-      message: `Failed to create Google Form: ${error.message}`
+      message: `Google Forms Export Notice: ${msg}`
     };
   }
 }

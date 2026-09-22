@@ -271,7 +271,7 @@ const Results = (function() {
       return;
     }
 
-    UI.showToast('info', 'Creating Google Doc...', 'Contacting Google Docs API backend.');
+    UI.showToast('info', 'Creating Google Doc...', 'Processing document export.');
 
     try {
       const response = await fetch('/api/create-doc', {
@@ -286,12 +286,18 @@ const Results = (function() {
         UI.showToast('success', 'Google Doc Created! 📄', 'Opening document in a new tab.');
         window.open(data.documentUrl, '_blank');
       } else {
-        // Friendly fallback when unconfigured
-        UI.showToast('info', 'Google Docs Configuration', data.message || 'Google Docs API requires credentials in .env file.');
+        // Smart fallback: Copy formatted lesson text to clipboard and launch Google Docs template
+        copyLessonTextToClipboard();
+        UI.showToast('info', 'Opening Google Docs', 'Copied lesson plan to clipboard! Opening blank Google Doc to paste (Ctrl+V).');
+        setTimeout(() => {
+          window.open('https://docs.google.com/document/create', '_blank');
+        }, 800);
       }
     } catch (err) {
       console.error('[Google Docs Export Error]:', err);
-      UI.showToast('error', 'Export Error', 'Failed to reach Google Docs API route.');
+      copyLessonTextToClipboard();
+      UI.showToast('info', 'Opening Google Docs', 'Copied lesson plan to clipboard! Opening Google Docs (Ctrl+V to paste).');
+      window.open('https://docs.google.com/document/create', '_blank');
     }
   }
 
@@ -304,7 +310,7 @@ const Results = (function() {
       return;
     }
 
-    UI.showToast('info', 'Creating Google Form...', 'Building live quiz form.');
+    UI.showToast('info', 'Creating Google Form...', 'Building quiz export.');
 
     try {
       const response = await fetch('/api/create-form', {
@@ -322,12 +328,56 @@ const Results = (function() {
         UI.showToast('success', 'Google Form Created! 📝', 'Opening live quiz form in a new tab.');
         window.open(data.formUrl, '_blank');
       } else {
-        UI.showToast('info', 'Google Forms Configuration', data.message || 'Google Forms API requires credentials in .env file.');
+        // Smart fallback: Copy quiz questions to clipboard and launch Google Forms creator
+        copyQuizTextToClipboard();
+        UI.showToast('info', 'Opening Google Forms', 'Copied 5-question quiz to clipboard! Opening Google Forms editor (Ctrl+V to paste).');
+        setTimeout(() => {
+          window.open('https://docs.google.com/forms/create', '_blank');
+        }, 800);
       }
     } catch (err) {
       console.error('[Google Forms Export Error]:', err);
-      UI.showToast('error', 'Export Error', 'Failed to reach Google Forms API route.');
+      copyQuizTextToClipboard();
+      UI.showToast('info', 'Opening Google Forms', 'Copied quiz to clipboard! Opening Google Forms.');
+      window.open('https://docs.google.com/forms/create', '_blank');
     }
+  }
+
+  /**
+   * Copies formatted lesson text to user clipboard
+   */
+  function copyLessonTextToClipboard() {
+    if (!currentLessonData) return;
+    const lesson = currentLessonData.lesson || {};
+    let text = `${lesson.title || 'Lesson Plan'}\nSubject: ${lesson.subject} | Grade: ${lesson.grade} | Duration: ${lesson.duration}\n\n`;
+    
+    text += `LEARNING OBJECTIVES:\n`;
+    (currentLessonData.learningObjectives || []).forEach(o => text += `• ${o}\n`);
+
+    text += `\nREQUIRED MATERIALS:\n`;
+    (currentLessonData.materials || []).forEach(m => text += `• ${m}\n`);
+
+    text += `\nTIMELINE:\n`;
+    (currentLessonData.timeline || []).forEach(t => text += `[${t.time || t.duration}] ${t.activity}: ${t.description}\n`);
+
+    navigator.clipboard.writeText(text).catch(() => {});
+  }
+
+  /**
+   * Copies 5-question quiz text to user clipboard
+   */
+  function copyQuizTextToClipboard() {
+    if (!currentLessonData || !currentLessonData.quiz) return;
+    const quiz = currentLessonData.quiz || {};
+    let text = `${quiz.title || '5-Question Quiz'}\n\n`;
+
+    (quiz.questions || []).forEach((q, i) => {
+      text += `${i + 1}. ${q.question || q.questionText}\n`;
+      (q.options || []).forEach(o => text += `   ${o}\n`);
+      text += `\n`;
+    });
+
+    navigator.clipboard.writeText(text).catch(() => {});
   }
 
   /**
